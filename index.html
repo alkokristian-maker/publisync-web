@@ -6,7 +6,6 @@
     <title>PubliSync - Manajemen Publikasi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Menggunakan Plus Jakarta Sans untuk kesan modern tech/startup -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,16 +14,10 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'] 
-                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: { 
-                        // Palet Zinc yang elegan ala website modern
-                        primary: '#09090b', // Zinc 950
-                        secondary: '#71717a', // Zinc 500
-                        surface: '#ffffff',
-                        background: '#fafafa', // Sangat subtle off-white
-                        accent: '#2563eb' // Biru untuk highlight khusus
+                        primary: '#09090b', secondary: '#71717a', 
+                        surface: '#ffffff', background: '#fafafa', accent: '#2563eb' 
                     },
                     boxShadow: {
                         'soft': '0 4px 40px -2px rgba(0, 0, 0, 0.05)',
@@ -39,55 +32,40 @@
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #fafafa;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-        
-        /* Modern Scrollbar - Minimalist */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
         
-        /* Smooth Animations */
         .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeInUp { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .modal-enter { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.97); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
         
-        /* Toast Animation */
         .toast-enter { animation: slideInBottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .toast-exit { animation: fadeOut 0.3s ease-in forwards; }
-        @keyframes slideInBottom { 
-            from { transform: translateY(100%); opacity: 0; } 
-            to { transform: translateY(0); opacity: 1; } 
-        }
+        @keyframes slideInBottom { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: scale(0.95); } }
 
-        /* Glassmorphism utilities */
         .glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-
-        /* Clean Input Fields */
-        .input-clean {
-            transition: all 0.2s ease;
-        }
-        .input-clean:focus {
-            box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1);
-        }
+        .input-clean { transition: all 0.2s ease; }
+        .input-clean:focus { box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1); }
     </style>
 </head>
-<body class="text-zinc-800 h-screen flex flex-col overflow-hidden selection:bg-zinc-200 selection:text-zinc-900">
+<body class="text-zinc-800 h-screen flex flex-col overflow-hidden selection:bg-zinc-200 selection:text-zinc-900 relative">
+
+    <!-- OVERLAY LOADING FIREBASE -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center transition-opacity duration-500">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary mb-4"></i>
+        <h2 class="font-bold text-lg text-zinc-800">Menghubungkan ke Database...</h2>
+        <p class="text-sm text-zinc-500 mt-1">Sistem Manajemen Publikasi Instansi</p>
+    </div>
 
     <nav class="glass px-6 py-4 flex justify-between items-center z-20 shrink-0 sticky top-0">
         <div class="flex items-center gap-3">
@@ -100,15 +78,14 @@
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <!-- Modern Role Switcher -->
             <div class="flex items-center gap-2 bg-zinc-100/80 px-3 py-1.5 rounded-full border border-zinc-200/60 backdrop-blur-sm">
                 <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                <select id="roleSelector" class="bg-transparent text-sm font-semibold text-zinc-700 outline-none cursor-pointer appearance-none pr-4 relative" onchange="changeRole(this.value)" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2371717a%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.2rem top 50%; background-size: 0.65rem auto;">
+                <select id="roleSelector" class="bg-transparent text-sm font-semibold text-zinc-700 outline-none cursor-pointer appearance-none pr-4 relative" onchange="window.changeRole(this.value)" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2371717a%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.2rem top 50%; background-size: 0.65rem auto;">
                     <option value="Desainer">Mode: Desainer</option>
                     <option value="Reviewer">Mode: Reviewer</option>
                 </select>
             </div>
-            <button onclick="openUploadModal()" id="btnUploadGlobal" class="bg-primary hover:bg-zinc-800 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 shadow-float flex items-center gap-2 active:scale-95">
+            <button onclick="window.openUploadModal()" id="btnUploadGlobal" class="bg-primary hover:bg-zinc-800 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 shadow-float flex items-center gap-2 active:scale-95">
                 <i class="fa-solid fa-plus"></i> Desain Baru
             </button>
         </div>
@@ -118,24 +95,23 @@
         <aside class="w-64 bg-transparent border-r border-zinc-200/60 flex flex-col p-6 shrink-0 hidden md:flex">
             <h2 class="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-4">Ruang Kerja</h2>
             <nav class="flex flex-col gap-1.5" id="filterNav">
-                <button onclick="setFilter('Semua')" class="filter-btn active flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-primary bg-zinc-100/80 transition-all w-full text-left" data-filter="Semua">
+                <button onclick="window.setFilter('Semua')" class="filter-btn active flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-primary bg-zinc-100/80 transition-all w-full text-left" data-filter="Semua">
                     <i class="fa-solid fa-layer-group w-4 text-center"></i> Semua Desain
                 </button>
-                <button onclick="setFilter('Menunggu Revisi')" class="filter-btn flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 transition-all w-full text-left" data-filter="Menunggu Revisi">
+                <button onclick="window.setFilter('Menunggu Revisi')" class="filter-btn flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 transition-all w-full text-left" data-filter="Menunggu Revisi">
                     <i class="fa-solid fa-pen-nib w-4 text-center"></i> Dalam Proses
                 </button>
-                <button onclick="setFilter('Disetujui')" class="filter-btn flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 transition-all w-full text-left" data-filter="Disetujui">
+                <button onclick="window.setFilter('Disetujui')" class="filter-btn flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 transition-all w-full text-left" data-filter="Disetujui">
                     <i class="fa-solid fa-check-double w-4 text-center"></i> Stock (Final)
                 </button>
             </nav>
 
-            <!-- Minimalist info box -->
             <div class="mt-auto pt-6 border-t border-zinc-200/50">
                 <div class="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
                     <div class="flex gap-2 items-start">
-                        <i class="fa-solid fa-bolt text-amber-500 mt-0.5 text-sm"></i>
+                        <i class="fa-solid fa-cloud text-accent mt-0.5 text-sm"></i>
                         <p class="text-xs text-zinc-500 leading-relaxed font-medium">
-                            Sistem kolaborasi desain secara real-time. Bagikan tautan untuk meminta ulasan.
+                            Tersinkronisasi secara real-time via Cloud Database.
                         </p>
                     </div>
                 </div>
@@ -147,78 +123,75 @@
                 <div class="flex justify-between items-end mb-8">
                     <div>
                         <h2 id="galleryTitle" class="text-3xl font-extrabold text-zinc-900 tracking-tight">Semua Desain</h2>
-                        <p class="text-sm text-zinc-500 mt-1 font-medium">Pantau dan tinjau aset publikasi instansi.</p>
+                        <p class="text-sm text-zinc-500 mt-1 font-medium">Pantau dan tinjau aset publikasi instansi secara langsung.</p>
                     </div>
                     <div class="relative group">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-primary transition-colors"></i>
-                        <input type="text" id="searchInput" onkeyup="searchFlyers()" placeholder="Cari publikasi..." class="pl-10 pr-4 py-2.5 bg-white border border-zinc-200/80 rounded-full text-sm w-72 focus:outline-none focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100 transition-all input-clean shadow-sm font-medium">
+                        <input type="text" id="searchInput" onkeyup="window.searchFlyers()" placeholder="Cari publikasi..." class="pl-10 pr-4 py-2.5 bg-white border border-zinc-200/80 rounded-full text-sm w-72 focus:outline-none focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100 transition-all input-clean shadow-sm font-medium">
                     </div>
                 </div>
 
-                <!-- Grid Container with modern gap -->
                 <div id="flyerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <!-- Flyers will be injected here by JS -->
+                    <!-- Dinamis dari Firebase -->
                 </div>
                 
-                <!-- Elegant Empty State -->
                 <div id="emptyState" class="hidden flex-col items-center justify-center py-32 text-center fade-in-up">
                     <div class="w-20 h-20 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-300 text-3xl mb-5 shadow-inner">
                         <i class="fa-solid fa-ghost"></i>
                     </div>
                     <h3 class="text-lg font-bold text-zinc-800">Ruang kerja kosong</h3>
-                    <p class="text-zinc-500 text-sm mt-2 max-w-sm">Belum ada desain yang diunggah di kategori ini, atau kata kunci tidak ditemukan.</p>
+                    <p class="text-zinc-500 text-sm mt-2 max-w-sm">Belum ada desain yang diunggah, atau sedang memuat data dari server...</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal Upload -->
     <div id="uploadModal" class="fixed inset-0 bg-zinc-900/40 backdrop-blur-md hidden z-[60] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-float w-full max-w-xl overflow-hidden modal-enter flex flex-col max-h-[90vh] border border-white/20">
             <div class="px-8 py-6 border-b border-zinc-100 flex justify-between items-center bg-white/50 backdrop-blur-xl">
                 <div>
                     <h3 class="font-extrabold text-xl text-zinc-900">Unggah Aset Baru</h3>
-                    <p class="text-xs text-zinc-500 font-medium mt-1">Tambahkan desain untuk direview atau disimpan.</p>
+                    <p class="text-xs text-zinc-500 font-medium mt-1">Tambahkan desain ke sistem database (Maks 1MB per foto disarankan).</p>
                 </div>
-                <button onclick="closeUploadModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 transition-all">
+                <button onclick="window.closeUploadModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 transition-all">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
             
             <div class="p-8 overflow-y-auto flex-1 custom-scrollbar">
-                <form id="uploadForm" onsubmit="handleUpload(event)" class="flex flex-col gap-5">
+                <form id="uploadForm" onsubmit="window.handleUpload(event)" class="flex flex-col gap-5">
                     <div>
                         <label class="block text-xs font-bold text-zinc-700 mb-2 uppercase tracking-wide">Judul Publikasi</label>
-                        <input type="text" id="upTitle" required placeholder="Contoh: Banner Dirgahayu RI 79" class="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100 transition-all text-sm font-medium input-clean">
+                        <input type="text" id="upTitle" required placeholder="Contoh: Banner Dirgahayu RI" class="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100 transition-all text-sm font-medium input-clean">
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-zinc-700 mb-2 uppercase tracking-wide">Aset Visual (Max 20)</label>
+                        <label class="block text-xs font-bold text-zinc-700 mb-2 uppercase tracking-wide">Aset Visual (Akan Dikompres Otomatis)</label>
                         <div class="border-2 border-dashed border-zinc-200 rounded-2xl p-6 text-center hover:bg-zinc-50 hover:border-zinc-300 transition-all cursor-pointer relative min-h-[160px] flex flex-col items-center justify-center group" id="dropZone">
-                            <input type="file" id="upFile" required accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewUpload(this)" title="Pilih gambar">
+                            <input type="file" id="upFile" required accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="window.previewUpload(this)" title="Pilih gambar">
                             
                             <div id="uploadPlaceholder" class="pointer-events-none flex flex-col items-center transition-transform group-hover:scale-105">
                                 <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 border border-zinc-100">
                                     <i class="fa-solid fa-arrow-up-from-bracket text-zinc-400"></i>
                                 </div>
                                 <p class="text-sm font-bold text-zinc-700">Tarik & lepas file di sini</p>
-                                <p class="text-xs text-zinc-400 mt-1 font-medium">atau klik untuk menelusuri (PNG, JPG)</p>
+                                <p class="text-xs text-zinc-400 mt-1 font-medium">Sistem akan otomatis mengompres gambar untuk menghemat database.</p>
                             </div>
 
                             <div id="uploadPreview" class="hidden grid grid-cols-4 sm:grid-cols-5 gap-3 w-full z-20 relative pointer-events-none mt-2">
-                                <!-- Previews injected here -->
+                                <!-- Previews -->
                             </div>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-zinc-700 mb-2 uppercase tracking-wide">Teks Caption (Opsional)</label>
-                        <textarea id="upCaption" rows="3" placeholder="Tuliskan copy/teks untuk postingan sosial media..." class="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100 transition-all text-sm font-medium resize-y custom-scrollbar input-clean"></textarea>
+                        <textarea id="upCaption" rows="3" placeholder="Tuliskan copy/teks untuk postingan..." class="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 transition-all text-sm font-medium input-clean"></textarea>
                     </div>
 
                     <div class="pt-4 flex justify-end gap-3 mt-2">
-                        <button type="button" onclick="closeUploadModal()" class="px-5 py-2.5 bg-white border border-zinc-200 text-zinc-700 rounded-full text-sm font-bold hover:bg-zinc-50 hover:border-zinc-300 transition-all">Batal</button>
-                        <button type="submit" class="px-5 py-2.5 bg-primary text-white rounded-full text-sm font-bold hover:bg-zinc-800 transition-all shadow-float flex items-center gap-2">
+                        <button type="button" onclick="window.closeUploadModal()" class="px-5 py-2.5 bg-white border border-zinc-200 text-zinc-700 rounded-full text-sm font-bold hover:bg-zinc-50 transition-all">Batal</button>
+                        <button type="submit" id="btnSubmitUpload" class="px-5 py-2.5 bg-primary text-white rounded-full text-sm font-bold hover:bg-zinc-800 transition-all shadow-float flex items-center gap-2 disabled:opacity-50">
                             Mulai Unggah <i class="fa-solid fa-arrow-right text-xs"></i>
                         </button>
                     </div>
@@ -227,53 +200,43 @@
         </div>
     </div>
 
-    <!-- Modal Detail & Review (Figma/Pro Tool Style) -->
     <div id="detailModal" class="fixed inset-0 bg-zinc-950/90 backdrop-blur-lg hidden z-[70] flex items-center justify-center p-0 md:p-6 transition-all duration-300">
         <div class="bg-white md:rounded-[2rem] shadow-2xl w-full max-w-[90rem] h-full md:h-[94vh] overflow-hidden modal-enter flex flex-col md:flex-row border border-white/10">
             
-            <!-- Left Side: Image Preview (Dark Artboard Style) -->
             <div class="w-full md:w-[65%] bg-[#0f0f11] flex flex-col relative h-[45%] md:h-full group">
-                <!-- Top actions on artboard -->
                 <div class="absolute top-6 left-6 z-10 flex items-center gap-3">
                     <span id="detailStatus" class="px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-md bg-white/10 text-white border border-white/20">Status</span>
                 </div>
-                
                 <div class="absolute top-6 right-6 z-10 md:hidden">
-                    <button onclick="closeDetailModal()" class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md text-white flex items-center justify-center border border-white/20">
+                    <button onclick="window.closeDetailModal()" class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md text-white flex items-center justify-center border border-white/20">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
-                <!-- Main Image Workspace -->
                 <div class="flex-1 p-8 flex items-center justify-center overflow-auto custom-scrollbar relative">
-                    <!-- Subtle dot grid pattern for background -->
                     <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
-                    <img id="detailImage" src="" alt="Flayer Detail" class="max-w-full max-h-full object-contain shadow-2xl rounded-sm z-10 transition-transform duration-300" onerror="this.src='https://placehold.co/600x800/18181b/ffffff?text=Gambar+Rusak'">
+                    <img id="detailImage" src="" alt="Flayer Detail" class="max-w-full max-h-full object-contain shadow-2xl rounded-sm z-10 transition-transform duration-300">
                 </div>
 
-                <!-- Thumbnails Strip (Glassmorphism on Dark) -->
                 <div id="thumbnailContainer" class="hidden absolute bottom-24 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-xl border border-white/20 p-2 rounded-2xl items-center gap-2 z-20 max-w-[90%] overflow-x-auto shadow-float custom-scrollbar">
-                    <!-- Thumbnails injected here -->
+                    <!-- Thumbnails -->
                 </div>
 
-                <!-- Footer File Info -->
                 <div class="bg-[#18181b] px-6 py-4 border-t border-white/10 flex justify-between items-center shrink-0 z-20">
                     <div class="flex items-center gap-3 text-white/80">
                         <i class="fa-regular fa-file-image text-xl text-zinc-400"></i>
                         <div>
                             <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Master File</p>
-                            <p class="text-sm font-semibold text-white mt-0.5" id="detailFileName">poster.tiff</p>
+                            <p class="text-sm font-semibold text-white mt-0.5" id="detailFileName">poster.png</p>
                         </div>
                     </div>
-                    <button onclick="downloadCurrentFile()" class="bg-white text-black hover:bg-zinc-200 px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 active:scale-95 shadow-lg">
+                    <button onclick="window.downloadCurrentFile()" class="bg-white text-black hover:bg-zinc-200 px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 active:scale-95 shadow-lg">
                         <i class="fa-solid fa-arrow-down"></i> Unduh File
                     </button>
                 </div>
             </div>
 
-            <!-- Right Side: Clean Comments & Details -->
             <div class="w-full md:w-[35%] bg-white flex flex-col h-[55%] md:h-full border-l border-zinc-200/50">
-                <!-- Header -->
                 <div class="px-8 py-6 flex justify-between items-start bg-white shrink-0 z-10">
                     <div class="pr-4">
                         <h3 id="detailTitle" class="font-extrabold text-2xl text-zinc-900 leading-tight tracking-tight">Judul Flayer</h3>
@@ -282,49 +245,43 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                        <button onclick="shareDesign()" class="text-zinc-500 hover:text-primary hover:bg-zinc-100 transition-all w-10 h-10 rounded-full flex items-center justify-center border border-transparent hover:border-zinc-200" title="Salin Tautan">
+                        <button onclick="window.shareDesign()" class="text-zinc-500 hover:text-primary hover:bg-zinc-100 transition-all w-10 h-10 rounded-full flex items-center justify-center border border-transparent hover:border-zinc-200" title="Salin Tautan">
                             <i class="fa-solid fa-link"></i>
                         </button>
-                        <button onclick="closeDetailModal()" class="hidden md:flex text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-all w-10 h-10 rounded-full items-center justify-center border border-transparent hover:border-red-100" title="Tutup">
+                        <button onclick="window.closeDetailModal()" class="hidden md:flex text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-all w-10 h-10 rounded-full items-center justify-center border border-transparent hover:border-red-100" title="Tutup">
                             <i class="fa-solid fa-xmark text-lg"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Scrollable Body: Caption & Comments -->
                 <div class="flex-1 overflow-y-auto px-8 pb-4 custom-scrollbar flex flex-col gap-6" id="commentContainer">
-                    
-                    <!-- Caption Display -->
                     <div>
                         <p class="text-[11px] font-bold text-zinc-400 mb-2 uppercase tracking-widest">Teks Publikasi</p>
                         <div class="bg-zinc-50 border border-zinc-100 p-4 rounded-2xl text-sm font-medium text-zinc-700 whitespace-pre-wrap leading-relaxed" id="detailCaptionDisplay"></div>
                     </div>
 
-                    <!-- Approval Actions (Reviewer Only) -->
                     <div id="approvalSection" class="hidden bg-white border border-zinc-200 rounded-2xl p-1 shadow-sm">
                         <div class="flex gap-1">
-                            <button onclick="updateStatus('Menunggu Revisi')" class="flex-1 bg-transparent hover:bg-amber-50 text-zinc-600 hover:text-amber-700 px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                            <button onclick="window.updateStatus('Menunggu Revisi')" class="flex-1 bg-transparent hover:bg-amber-50 text-zinc-600 hover:text-amber-700 px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-arrow-rotate-left"></i> Minta Revisi
                             </button>
                             <div class="w-[1px] bg-zinc-200 my-2"></div>
-                            <button onclick="updateStatus('Disetujui')" class="flex-1 bg-transparent hover:bg-emerald-50 text-zinc-600 hover:text-emerald-700 px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                            <button onclick="window.updateStatus('Disetujui')" class="flex-1 bg-transparent hover:bg-emerald-50 text-zinc-600 hover:text-emerald-700 px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-check"></i> Setujui Desain
                             </button>
                         </div>
                     </div>
 
-                    <!-- Comments Area -->
                     <div class="flex-1">
                         <h4 class="text-[11px] font-bold text-zinc-400 mb-4 uppercase tracking-widest border-b border-zinc-100 pb-2">Diskusi & Revisi</h4>
                         <div id="commentList" class="flex flex-col gap-5 pb-4">
-                            <!-- Comments injected via JS -->
+                            <!-- Comments -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Modern Chat Input -->
                 <div class="p-6 bg-white border-t border-zinc-100 shrink-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
-                    <form onsubmit="submitComment(event)" class="flex flex-col gap-3">
+                    <form onsubmit="window.submitComment(event)" class="flex flex-col gap-3">
                         <div class="flex items-center gap-2 px-1">
                             <i class="fa-regular fa-user text-zinc-400 text-xs"></i>
                             <input type="text" id="commentNameInput" placeholder="Nama Anda..." required class="w-full bg-transparent text-xs font-bold text-zinc-700 focus:outline-none placeholder:font-medium placeholder:text-zinc-400">
@@ -341,69 +298,128 @@
         </div>
     </div>
 
-    <!-- Minimalist Toast Container -->
     <div id="toastContainer" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
-    <script>
-        let currentUploadedFiles = [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // ⚠️ PENGATURAN VERCEL / DATABASE ⚠️
+        // Jika Anda menaruh kode ini di Vercel, Anda 
+        // HARUS mengisi firebaseConfig di bawah ini
+        // dengan data dari project Firebase Anda.
+        // ==========================================
+        let firebaseConfig = {
+            // apiKey: "API_KEY_ANDA",
+            // authDomain: "PROJECT_ID.firebaseapp.com",
+            // projectId: "PROJECT_ID",
+            // storageBucket: "PROJECT_ID.appspot.com",
+            // messagingSenderId: "SENDER_ID",
+            // appId: "APP_ID"
+        };
         
+        let appId = 'publisync-web-v1';
+        let db, auth;
+        let isFirebaseConnected = false;
+
+        // Mendeteksi lingkungan (Otomatis mendeteksi jika dijalankan di sistem pembuat)
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+            appId = typeof __app_id !== 'undefined' ? __app_id : appId;
+        }
+
         const state = {
             currentUser: 'Desainer',
             activeFilter: 'Semua',
             searchQuery: '',
             currentFlyerId: null,
-            flyers: [
-                {
-                    id: '1',
-                    title: 'Banner Peringatan Hari Kebangkitan Nasional 2026',
-                    date: '10 Ags 2026',
-                    imageUrls: [
-                        'https://placehold.co/1200x600/09090b/ffffff?text=Harkitnas+Banner+(Utama)',
-                        'https://placehold.co/800x800/18181b/ffffff?text=Harkitnas+IG+Square'
-                    ],
-                    caption: 'Mari bangkit bersama membangun negeri! Selamat Hari Kebangkitan Nasional 2026.\n\n#Harkitnas2026 #BangkitBersama',
-                    status: 'Disetujui',
-                    filename: 'Banner-Harkitnas-Print.zip',
-                    comments: [
-                        { user: 'Desainer', text: 'Draft awal untuk banner utama dan adaptasi sosmed. Silakan direview.', time: '10 Ags, 09:00', isSystem: false },
-                        { user: 'Reviewer', text: 'Kontras warnanya bagus. Tolong pastikan resolusi logo tidak pecah saat dicetak 3x1 meter ya.', time: '10 Ags, 10:30', isSystem: false },
-                        { user: 'Reviewer', text: '✅ Menyetujui desain ini untuk dirilis.', time: '10 Ags, 13:00', isSystem: true }
-                    ]
-                },
-                {
-                    id: '2',
-                    title: 'Infografis Laporan Kinerja Instansi Q2',
-                    date: '12 Ags 2026',
-                    imageUrls: ['https://placehold.co/800x1200/2563eb/ffffff?text=Laporan+Kinerja+Q2'],
-                    caption: 'Transparansi adalah kunci. Berikut pencapaian kita di Kuartal 2 tahun 2026.',
-                    status: 'Menunggu Revisi',
-                    filename: 'Laporan-Q2-HighRes.png',
-                    comments: [
-                        { user: 'Desainer', text: 'Data sudah dimasukkan semua sesuai dokumen Excel terakhir.', time: '12 Ags, 14:00', isSystem: false },
-                        { user: 'Reviewer', text: 'Di grafik baris ke-3, angkanya tertukar antara target dan realisasi. Tolong diperbaiki sebelum naik tayang.', time: '12 Ags, 15:20', isSystem: false }
-                    ]
-                }
-            ]
+            flyers: [] // Data kini kosong, akan diisi oleh Firebase
         };
 
-        function init() {
-            renderGallery();
-            updateRoleUI();
+        let currentUploadedFiles = [];
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const idParam = urlParams.get('id');
-            if (idParam && state.flyers.some(f => f.id === idParam)) {
-                openDetailModal(idParam);
+        // Inisialisasi Aplikasi
+        async function initApp() {
+            try {
+                if(!firebaseConfig.apiKey && typeof __firebase_config === 'undefined') {
+                    // Peringatan jika belum mengatur Firebase di Vercel
+                    document.getElementById('loadingOverlay').innerHTML = `
+                        <div class="bg-red-50 p-6 rounded-2xl max-w-md text-center border border-red-200">
+                            <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
+                            <h2 class="text-red-700 font-bold mb-2">Konfigurasi Database Diperlukan</h2>
+                            <p class="text-red-600 text-sm">Untuk menjalankan aplikasi ini di Vercel secara permanen, Anda perlu memasukkan konfigurasi Firebase di dalam file kode HTML-nya.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Login Otomatis (Tanpa sandi) agar bisa akses database
+                await signInAnonymously(auth);
+                
+                // Mendengarkan perubahan data secara Real-Time dari Cloud
+                const flyersRef = collection(db, 'artifacts', appId, 'public', 'data', 'flyers');
+                onSnapshot(flyersRef, (snapshot) => {
+                    const fetchedFlyers = [];
+                    snapshot.forEach((doc) => {
+                        fetchedFlyers.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Urutkan dari yang terbaru
+                    fetchedFlyers.sort((a, b) => b.timestamp - a.timestamp);
+                    state.flyers = fetchedFlyers;
+                    
+                    renderGallery();
+
+                    if(state.currentFlyerId) {
+                        const exists = state.flyers.find(f => f.id === state.currentFlyerId);
+                        if(exists) renderDetailModal(state.currentFlyerId);
+                        else window.closeDetailModal();
+                    }
+
+                    // Sembunyikan Loading
+                    const overlay = document.getElementById('loadingOverlay');
+                    if(overlay) {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.remove(), 500);
+                    }
+                    isFirebaseConnected = true;
+                }, (error) => {
+                    console.error("Gagal menarik data:", error);
+                    window.showToast("Terjadi kesalahan koneksi database.", "error");
+                });
+
+                updateRoleUI();
+                checkUrlParam();
+
+            } catch (err) {
+                console.error(err);
+                window.showToast("Gagal menginisialisasi sistem.", "error");
             }
         }
 
-        function generateId() { return Math.random().toString(36).substr(2, 9); }
+        function checkUrlParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idParam = urlParams.get('id');
+            if (idParam) {
+                // Beri sedikit jeda agar data sempat termuat dari Firebase
+                setTimeout(() => {
+                    if (state.flyers.some(f => f.id === idParam)) {
+                        window.openDetailModal(idParam);
+                    }
+                }, 1000);
+            }
+        }
 
-        function showToast(message, type = 'success') {
+        // --- FUNGSI GLOBAL UTILITIES ---
+        window.showToast = function(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            
-            // Minimalist Toast Design
             const isSuccess = type === 'success';
             const iconColor = isSuccess ? 'text-emerald-500' : (type === 'error' ? 'text-red-500' : 'text-primary');
             const iconName = isSuccess ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info');
@@ -412,21 +428,18 @@
             toast.innerHTML = `<i class="fa-solid ${iconName} ${iconColor} text-lg"></i> <span>${message}</span>`;
             
             container.appendChild(toast);
-            
             setTimeout(() => {
                 toast.classList.replace('toast-enter', 'toast-exit');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-        function changeRole(role) {
+        window.changeRole = function(role) {
             state.currentUser = role;
             updateRoleUI();
-            showToast(`Ganti mode tampilan: ${role}`, 'info');
-            
+            window.showToast(`Ganti mode tampilan: ${role}`, 'info');
             const nameInput = document.getElementById('commentNameInput');
             if(nameInput) nameInput.value = role;
-            
             if (state.currentFlyerId && !document.getElementById('detailModal').classList.contains('hidden')) {
                 renderDetailModal(state.currentFlyerId);
             }
@@ -434,16 +447,12 @@
 
         function updateRoleUI() {
             const btnUpload = document.getElementById('btnUploadGlobal');
-            if(state.currentUser === 'Reviewer') {
-                btnUpload.classList.add('hidden'); // Lebih clean jika reviewer tidak perlu tombol upload mencolok
-            } else {
-                btnUpload.classList.remove('hidden');
-            }
+            if(state.currentUser === 'Reviewer') btnUpload.classList.add('hidden');
+            else btnUpload.classList.remove('hidden');
         }
 
-        function setFilter(filterType) {
+        window.setFilter = function(filterType) {
             state.activeFilter = filterType;
-            
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if(btn.dataset.filter === filterType) {
                     btn.classList.add('bg-zinc-100/80', 'text-primary');
@@ -453,22 +462,18 @@
                     btn.classList.add('text-zinc-500', 'hover:bg-zinc-100/50');
                 }
             });
-
             document.getElementById('galleryTitle').innerText = filterType === 'Semua' ? 'Semua Desain' : filterType;
             renderGallery();
         }
 
-        function searchFlyers() {
+        window.searchFlyers = function() {
             state.searchQuery = document.getElementById('searchInput').value.toLowerCase();
             renderGallery();
         }
 
         function getStatusBadge(status) {
-            if (status === 'Disetujui') {
-                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-bold uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Final</span>`;
-            } else {
-                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Proses</span>`;
-            }
+            if (status === 'Disetujui') return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-bold uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Final</span>`;
+            return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Proses</span>`;
         }
 
         function renderGallery() {
@@ -482,7 +487,6 @@
             });
 
             grid.innerHTML = '';
-
             if (filtered.length === 0) {
                 grid.classList.add('hidden');
                 emptyState.classList.remove('hidden');
@@ -493,18 +497,13 @@
                 emptyState.classList.remove('flex');
 
                 filtered.forEach(flyer => {
-                    const commentCount = flyer.comments.length;
                     const photoCount = flyer.imageUrls.length;
-                    
                     const photoBadge = photoCount > 1 ? 
-                        `<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md shadow-sm font-bold border border-white/10 flex items-center gap-1.5 z-10">
-                            <i class="fa-solid fa-clone"></i> ${photoCount}
-                        </div>` : '';
+                        `<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md shadow-sm font-bold border border-white/10 flex items-center gap-1.5 z-10"><i class="fa-solid fa-clone"></i> ${photoCount}</div>` : '';
                     
                     const card = document.createElement('div');
-                    // Modern Developer Card: subtle border, rounded-2xl, scale on hover
                     card.className = "bg-white rounded-2xl shadow-sm border border-zinc-200/60 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-zinc-300 transition-all duration-300 group cursor-pointer flex flex-col";
-                    card.onclick = () => openDetailModal(flyer.id);
+                    card.onclick = () => window.openDetailModal(flyer.id);
                     
                     card.innerHTML = `
                         <div class="h-52 bg-zinc-100 relative overflow-hidden flex items-center justify-center p-4">
@@ -513,13 +512,11 @@
                             ${photoBadge}
                         </div>
                         <div class="p-5 flex flex-col flex-1">
-                            <div class="mb-3">
-                                ${getStatusBadge(flyer.status)}
-                            </div>
+                            <div class="mb-3">${getStatusBadge(flyer.status)}</div>
                             <h3 class="font-extrabold text-zinc-800 text-sm leading-snug mb-2 line-clamp-2">${flyer.title}</h3>
                             <div class="flex items-center justify-between mt-auto pt-4 border-t border-zinc-100 text-[11px] text-zinc-400 font-bold uppercase tracking-wide">
                                 <span>${flyer.date}</span>
-                                <span class="flex items-center gap-1 hover:text-zinc-600 transition-colors"><i class="fa-solid fa-message"></i> ${commentCount}</span>
+                                <span class="flex items-center gap-1 hover:text-zinc-600 transition-colors"><i class="fa-solid fa-message"></i> ${flyer.comments?.length || 0}</span>
                             </div>
                         </div>
                     `;
@@ -528,9 +525,9 @@
             }
         }
 
-        function openDetailModal(id) {
+        // --- STREAMING_CHUNK: Fungsi Modal dan Interaksi Firebase ---
+        window.openDetailModal = function(id) {
             state.currentFlyerId = id;
-            
             const nameInput = document.getElementById('commentNameInput');
             if(nameInput && !nameInput.value) nameInput.value = state.currentUser;
 
@@ -544,7 +541,7 @@
             window.history.pushState({path:newUrl}, '', newUrl);
         }
 
-        function closeDetailModal() {
+        window.closeDetailModal = function() {
             state.currentFlyerId = null;
             const modal = document.getElementById('detailModal');
             modal.classList.add('hidden');
@@ -555,7 +552,7 @@
             window.history.pushState({path:newUrl}, '', newUrl);
         }
 
-        function shareDesign() {
+        window.shareDesign = function() {
             const shareUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + state.currentFlyerId;
             const textArea = document.createElement("textarea");
             textArea.value = shareUrl;
@@ -563,9 +560,9 @@
             textArea.select();
             try {
                 document.execCommand('copy');
-                showToast('Tautan berhasil disalin ke clipboard.', 'success');
+                window.showToast('Tautan berhasil disalin ke clipboard.', 'success');
             } catch (err) {
-                showToast('Gagal menyalin tautan.', 'error');
+                window.showToast('Gagal menyalin tautan.', 'error');
             }
             document.body.removeChild(textArea);
         }
@@ -583,9 +580,7 @@
             if(flyer.caption) {
                 captionEl.innerText = flyer.caption;
                 captionEl.classList.remove('hidden');
-            } else {
-                captionEl.classList.add('hidden');
-            }
+            } else { captionEl.classList.add('hidden'); }
 
             const thumbContainer = document.getElementById('thumbnailContainer');
             thumbContainer.innerHTML = '';
@@ -594,10 +589,8 @@
                 thumbContainer.classList.add('flex');
                 flyer.imageUrls.forEach((url, index) => {
                     thumbContainer.innerHTML += `
-                        <img src="${url}" 
-                             onclick="changeMainImage('${url}')" 
-                             class="h-14 w-14 object-cover rounded-xl border-2 border-transparent hover:border-white cursor-pointer shrink-0 transition-all opacity-80 hover:opacity-100" 
-                             alt="Th ${index+1}">
+                        <img src="${url}" onclick="window.changeMainImage('${url}')" 
+                             class="h-14 w-14 object-cover rounded-xl border-2 border-transparent hover:border-white cursor-pointer shrink-0 transition-all opacity-80 hover:opacity-100">
                     `;
                 });
             } else {
@@ -606,23 +599,17 @@
             }
 
             const statusEl = document.getElementById('detailStatus');
-            if(flyer.status === 'Disetujui') {
-                statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 inline-block"></span> Final / Disetujui';
-            } else {
-                statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 mr-2 inline-block"></span> Proses / Revisi';
-            }
+            if(flyer.status === 'Disetujui') statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 inline-block"></span> Final / Disetujui';
+            else statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 mr-2 inline-block"></span> Proses / Revisi';
 
             const appSection = document.getElementById('approvalSection');
-            if (state.currentUser === 'Reviewer') {
-                appSection.classList.remove('hidden');
-            } else {
-                appSection.classList.add('hidden');
-            }
+            if (state.currentUser === 'Reviewer') appSection.classList.remove('hidden');
+            else appSection.classList.add('hidden');
 
             renderComments(flyer);
         }
 
-        function changeMainImage(url) {
+        window.changeMainImage = function(url) {
             document.getElementById('detailImage').src = url;
         }
 
@@ -630,129 +617,103 @@
             const container = document.getElementById('commentList');
             container.innerHTML = '';
 
-            if (flyer.comments.length === 0) {
+            if (!flyer.comments || flyer.comments.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-400 font-medium text-center py-6">Belum ada diskusi.</p>`;
                 return;
             }
 
             flyer.comments.forEach(c => {
-                // System notification styling
                 if (c.isSystem) {
                     container.insertAdjacentHTML('beforeend', `
                         <div class="flex justify-center my-2">
-                            <div class="bg-zinc-100 px-4 py-2 rounded-full text-[11px] font-bold text-zinc-500 uppercase tracking-wide">
-                                ${c.text}
-                            </div>
-                        </div>
-                    `);
+                            <div class="bg-zinc-100 px-4 py-2 rounded-full text-[11px] font-bold text-zinc-500 uppercase tracking-wide">${c.text}</div>
+                        </div>`);
                     return;
                 }
 
                 const currentTypedName = document.getElementById('commentNameInput').value.trim();
                 const isMe = (c.user === state.currentUser) || (currentTypedName && c.user.toLowerCase() === currentTypedName.toLowerCase());
-                
                 const alignClass = isMe ? 'flex-row-reverse' : 'flex-row';
                 const bgClass = isMe ? 'bg-zinc-900 text-white rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm' : 'bg-zinc-100 text-zinc-800 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl rounded-bl-sm';
                 const textCol = isMe ? 'text-zinc-200' : 'text-zinc-500';
-                
                 let avatarIcon = c.user === 'Desainer' ? 'fa-pen-nib' : (c.user === 'Reviewer' ? 'fa-eye' : 'fa-user');
 
-                const commentHTML = `
+                container.insertAdjacentHTML('beforeend', `
                     <div class="flex gap-3 ${alignClass} items-end">
-                        <div class="w-7 h-7 rounded-full bg-zinc-200 text-zinc-500 flex items-center justify-center shrink-0 text-[10px] shadow-sm mb-1">
-                            <i class="fa-solid ${avatarIcon}"></i>
-                        </div>
+                        <div class="w-7 h-7 rounded-full bg-zinc-200 text-zinc-500 flex items-center justify-center shrink-0 text-[10px] shadow-sm mb-1"><i class="fa-solid ${avatarIcon}"></i></div>
                         <div class="max-w-[80%] flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                            <div class="px-4 py-3 shadow-sm text-sm font-medium leading-relaxed ${bgClass}">
-                                ${c.text}
-                            </div>
+                            <div class="px-4 py-3 shadow-sm text-sm font-medium leading-relaxed ${bgClass}">${c.text}</div>
                             <p class="text-[10px] font-bold mt-1.5 ${textCol} uppercase tracking-wider">${isMe ? 'Anda' : c.user} • ${c.time}</p>
                         </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', commentHTML);
+                    </div>`);
             });
-            
             const scrollArea = document.getElementById('commentContainer');
             setTimeout(() => scrollArea.scrollTop = scrollArea.scrollHeight, 10);
         }
 
-        function submitComment(e) {
+        window.submitComment = async function(e) {
             e.preventDefault();
+            if(!isFirebaseConnected) return window.showToast("Terputus dari database.", "error");
+
             const input = document.getElementById('commentInput');
             const nameInput = document.getElementById('commentNameInput');
-            
             const text = input.value.trim();
             const commenterName = nameInput.value.trim();
-            
             if(!text || !commenterName) return;
 
             const flyer = state.flyers.find(f => f.id === state.currentFlyerId);
             const now = new Date();
             const timeStr = `${now.getDate()} Ags, ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
 
-            flyer.comments.push({
-                user: commenterName,
-                text: text,
-                time: timeStr,
-                isSystem: false
-            });
+            const newComment = { user: commenterName, text: text, time: timeStr, isSystem: false };
+            const updatedComments = flyer.comments ? [...flyer.comments, newComment] : [newComment];
 
-            input.value = '';
-            renderComments(flyer);
-            renderGallery();
-        }
-
-        function updateStatus(newStatus) {
-            const flyer = state.flyers.find(f => f.id === state.currentFlyerId);
-            if(flyer.status === newStatus) return;
-
-            flyer.status = newStatus;
-            const now = new Date();
-            const timeStr = `${now.getDate()} Ags, ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            
-            let statusText = newStatus === 'Disetujui' ? '✅ Menyetujui desain ini untuk dirilis.' : '⚠️ Status diubah menjadi Perlu Revisi.';
-            
-            flyer.comments.push({
-                user: state.currentUser,
-                text: statusText,
-                time: timeStr,
-                isSystem: true
-            });
-
-            renderDetailModal(state.currentFlyerId);
-            renderGallery();
-            showToast(`Status diperbarui`, 'success');
-        }
-
-        function downloadCurrentFile() {
-            const flyer = state.flyers.find(f => f.id === state.currentFlyerId);
-            showToast(`Mempersiapkan unduhan file...`, 'info');
-            
-            if (flyer.imageUrls.length > 1) {
-                flyer.imageUrls.forEach((url, index) => {
-                    setTimeout(() => {
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${flyer.title.replace(/\s+/g, '-')}-0${index+1}.jpg`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                    }, index * 500);
-                });
-            } else {
-                setTimeout(() => {
-                    const a = document.createElement('a');
-                    a.href = flyer.imageUrls[0]; 
-                    a.download = flyer.filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                }, 800);
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'flyers', flyer.id);
+                await updateDoc(docRef, { comments: updatedComments });
+                input.value = '';
+            } catch (err) {
+                console.error(err);
+                window.showToast("Gagal mengirim komentar.", "error");
             }
         }
 
-        function openUploadModal() {
+        window.updateStatus = async function(newStatus) {
+            if(!isFirebaseConnected) return;
+            const flyer = state.flyers.find(f => f.id === state.currentFlyerId);
+            if(flyer.status === newStatus) return;
+
+            const now = new Date();
+            const timeStr = `${now.getDate()} Ags, ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            let statusText = newStatus === 'Disetujui' ? '✅ Menyetujui desain ini untuk dirilis.' : '⚠️ Status diubah menjadi Perlu Revisi.';
+            
+            const sysComment = { user: state.currentUser, text: statusText, time: timeStr, isSystem: true };
+            const updatedComments = flyer.comments ? [...flyer.comments, sysComment] : [sysComment];
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'flyers', flyer.id);
+                await updateDoc(docRef, { status: newStatus, comments: updatedComments });
+                window.showToast(`Status diperbarui di Database`, 'success');
+            } catch (err) {
+                window.showToast("Gagal memperbarui status.", "error");
+            }
+        }
+
+        window.downloadCurrentFile = function() {
+            const flyer = state.flyers.find(f => f.id === state.currentFlyerId);
+            window.showToast(`Mempersiapkan unduhan file...`, 'info');
+            flyer.imageUrls.forEach((url, index) => {
+                setTimeout(() => {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = flyer.imageUrls.length > 1 ? `${flyer.title.replace(/\s+/g, '-')}-0${index+1}.jpg` : flyer.filename;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                }, index * 500);
+            });
+        }
+
+        // --- STREAMING_CHUNK: Kompresi Gambar & Upload ke Firestore ---
+        window.openUploadModal = function() {
             document.getElementById('uploadModal').classList.remove('hidden');
             document.getElementById('uploadForm').reset();
             document.getElementById('uploadPreview').innerHTML = '';
@@ -761,32 +722,29 @@
             currentUploadedFiles = [];
         }
 
-        function closeUploadModal() {
+        window.closeUploadModal = function() {
             document.getElementById('uploadModal').classList.add('hidden');
             currentUploadedFiles = [];
         }
 
-        function previewUpload(input) {
+        window.previewUpload = function(input) {
             const previewContainer = document.getElementById('uploadPreview');
             const placeholder = document.getElementById('uploadPlaceholder');
-            
             previewContainer.innerHTML = '';
             currentUploadedFiles = [];
 
             if (input.files && input.files.length > 0) {
-                const files = Array.from(input.files).slice(0, 20);
+                const files = Array.from(input.files).slice(0, 20); // Batas 20 foto
                 placeholder.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
 
                 files.forEach(file => {
                     const objectUrl = URL.createObjectURL(file);
                     currentUploadedFiles.push({ file, objectUrl });
-                    
                     previewContainer.innerHTML += `
                         <div class="h-16 w-full relative rounded-lg overflow-hidden border border-zinc-200">
                             <img src="${objectUrl}" class="w-full h-full object-cover">
-                        </div>
-                    `;
+                        </div>`;
                 });
             } else {
                 placeholder.classList.remove('hidden');
@@ -794,38 +752,87 @@
             }
         }
 
-        function handleUpload(e) {
-            e.preventDefault();
-            const title = document.getElementById('upTitle').value;
-            const caption = document.getElementById('upCaption').value;
-            
-            if (currentUploadedFiles.length === 0) return showToast('Pilih file gambar.', 'error');
-
-            const now = new Date();
-            const dateStr = `${now.getDate()} Ags ${now.getFullYear()}`;
-            const urls = currentUploadedFiles.map(f => f.objectUrl);
-            const mainFilename = currentUploadedFiles.length > 1 ? `${title.replace(/\s+/g, '-')}-Assets.zip` : currentUploadedFiles[0].file.name;
-            
-            const newFlyer = {
-                id: generateId(),
-                title: title,
-                date: dateStr,
-                imageUrls: urls,
-                caption: caption,
-                status: 'Menunggu Revisi', 
-                filename: mainFilename,
-                comments: []
-            };
-
-            state.flyers.unshift(newFlyer);
-            closeUploadModal();
-            renderGallery();
-            
-            if(state.activeFilter === 'Disetujui') setFilter('Menunggu Revisi');
-            showToast(`Berhasil mengunggah desain.`, 'success');
+        // Kompres gambar agar tidak memberatkan Firestore (Batas aman Firestore 1MB/Doc)
+        function compressImageToBase64(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width; let height = img.height;
+                        const MAX_SIZE = 1200; // Resolusi diturunkan sedikit agar muat di database
+                        
+                        if (width > height && width > MAX_SIZE) {
+                            height *= MAX_SIZE / width; width = MAX_SIZE;
+                        } else if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height; height = MAX_SIZE;
+                        }
+                        
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8)); // Kompresi JPEG 80%
+                    }
+                }
+            });
         }
 
-        window.onload = init;
+        window.handleUpload = async function(e) {
+            e.preventDefault();
+            if(!isFirebaseConnected) return window.showToast('Gagal terhubung ke Database.', 'error');
+            if (currentUploadedFiles.length === 0) return window.showToast('Pilih file gambar.', 'error');
+
+            const btn = document.getElementById('btnSubmitUpload');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengompres & Mengunggah...';
+
+            try {
+                const title = document.getElementById('upTitle').value;
+                const caption = document.getElementById('upCaption').value;
+                const now = new Date();
+                const dateStr = `${now.getDate()} Ags ${now.getFullYear()}`;
+                const mainFilename = currentUploadedFiles.length > 1 ? `${title.replace(/\s+/g, '-')}-Assets.zip` : currentUploadedFiles[0].file.name;
+                
+                // Proses kompresi gambar menjadi teks (Base64) agar bisa disimpan di Firestore
+                const base64Images = [];
+                for (let i = 0; i < currentUploadedFiles.length; i++) {
+                    const base64 = await compressImageToBase64(currentUploadedFiles[i].file);
+                    base64Images.push(base64);
+                }
+                
+                const newFlyer = {
+                    title: title,
+                    date: dateStr,
+                    timestamp: Date.now(), // Untuk mengurutkan data terbaru
+                    imageUrls: base64Images,
+                    caption: caption,
+                    status: 'Menunggu Revisi', 
+                    filename: mainFilename,
+                    comments: []
+                };
+
+                const flyersRef = collection(db, 'artifacts', appId, 'public', 'data', 'flyers');
+                await addDoc(flyersRef, newFlyer);
+                
+                window.closeUploadModal();
+                if(state.activeFilter === 'Disetujui') window.setFilter('Menunggu Revisi');
+                window.showToast(`Desain berhasil tersimpan di Cloud!`, 'success');
+
+            } catch (err) {
+                console.error(err);
+                window.showToast("Gagal mengunggah file. Ukuran mungkin terlalu besar.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Mulai Unggah <i class="fa-solid fa-arrow-right text-xs"></i>';
+            }
+        }
+
+        // Mulai aplikasi saat halaman selesai dimuat
+        window.addEventListener('DOMContentLoaded', initApp);
+
     </script>
 </body>
 </html>
